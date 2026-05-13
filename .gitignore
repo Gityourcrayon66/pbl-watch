@@ -1,0 +1,25 @@
+# venv
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# data: PDF 캐시는 push 안 함, DB는 push (작은 메타데이터만)
+data/pdfs/
+data/_*.pdf
+
+# secrets / local
+.env
+*.tmp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+
+# temp test scripts
+_test_*.py
+_scratch*.py

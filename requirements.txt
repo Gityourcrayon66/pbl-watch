@@ -1,0 +1,6 @@
+requests>=2.31
+curl_cffi>=0.7
+beautifulsoup4>=4.12
+feedparser>=6.0
+pypdf>=4.0
+streamlit>=1.30
