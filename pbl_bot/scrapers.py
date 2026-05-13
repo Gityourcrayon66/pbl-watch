@@ -195,6 +195,37 @@ def ddg_search():
     return out
 
 
+def rss_feeds():
+    """공신력 있는 항공/국방 RSS 5개 모니터링 — pivot 후 주 수집 채널."""
+    out = []
+    for feed in config.RSS_FEEDS:
+        try:
+            r = _http_get(feed["url"])
+        except Exception as e:
+            log.warning("rss fetch failed (%s): %s", feed["source"], e)
+            continue
+        parsed = feedparser.parse(r.text)
+        if parsed.bozo and not parsed.entries:
+            log.warning("rss parse failed (%s): %s", feed["source"], parsed.bozo_exception)
+            continue
+        n = 0
+        for entry in parsed.entries[: config.RSS_PER_FEED_MAX]:
+            link = entry.get("link") or ""
+            title = entry.get("title") or link
+            published = entry.get("published") or entry.get("updated")
+            if not link:
+                continue
+            out.append({
+                "source": feed["source"],
+                "url": link,
+                "title": title,
+                "published": published,
+            })
+            n += 1
+        log.info("rss %s: %d entries", feed["source"], n)
+    return out
+
+
 def seed_urls():
     return [
         {"source": "seed", "url": u, "title": u.rsplit("/", 1)[-1], "published": None}
@@ -209,6 +240,7 @@ def all_sources():
         "gao": gao_search,
         "ddg": ddg_search,
         "seed": seed_urls,
+        "rss": rss_feeds,
     }
     blocked = set(config.BLOCKED_URLS)
     out = []

@@ -9,6 +9,7 @@ except Exception:
 from . import config
 from .annotator_ollama import summarize
 from .processor import fetch_text
+from .relevance import classify
 from .scrapers import all_sources
 from .storage import Storage
 
@@ -37,15 +38,25 @@ def run(max_docs: int = config.MAX_PER_RUN):
         return
 
     for doc in pending:
-        log.info("→ %s", doc["url"])
+        log.info("→ [%s] %s", doc["source"], doc["url"])
         try:
             text = fetch_text(doc["url"])
-            if not text.strip():
+            body = text.strip()
+            if not body:
                 store.mark_failed(doc["id"], "empty text")
                 continue
-            summary = summarize(text)
+
+            if len(body) < config.MIN_BODY_CHARS:
+                log.info("  short body (%d chars) → relevance=low", len(body))
+                summary = summarize(text)
+                summary["PBL관련성"] = "low"
+                summary["_short_body"] = True
+            else:
+                summary = summarize(text)
+                summary["PBL관련성"] = classify(text, doc.get("title") or "")
+
             store.save_summary(doc["id"], summary, text[:2000])
-            log.info("  ok: %s", str(summary.get("한줄요약", ""))[:80])
+            log.info("  ok [%s]: %s", summary["PBL관련성"], str(summary.get("한줄요약", ""))[:80])
         except Exception as e:
             log.exception("  failed")
             store.mark_failed(doc["id"], str(e))

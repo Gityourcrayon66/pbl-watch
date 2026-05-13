@@ -7,7 +7,7 @@ on:
     inputs:
       max:
         description: 'Max docs to process'
-        default: '3'
+        default: '15'
 
 jobs:
   collect:
@@ -44,7 +44,7 @@ jobs:
         run: echo "TODAY=$(date -u +%F)" >> $GITHUB_ENV
 
       - name: Run daily collection
-        run: python -m pbl_bot.daily_run ${{ github.event.inputs.max || '3' }}
+        run: python -m pbl_bot.daily_run ${{ github.event.inputs.max || '15' }}
 
       - name: Generate HTML report
         run: python -m pbl_bot.report
@@ -58,6 +58,7 @@ jobs:
             echo "no changes"
           else
             git commit -m "daily collection $TODAY"
+            git pull --rebase  # 동시 push race condition 방지
             git push
           fi
 

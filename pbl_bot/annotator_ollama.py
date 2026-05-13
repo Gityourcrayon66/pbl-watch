@@ -7,16 +7,14 @@ from . import config
 
 log = logging.getLogger(__name__)
 
-PROMPT = """다음은 영문 군수/획득 정책 문서의 본문 일부다. PBL(Performance Based Logistics, 성과기반군수지원) 관점에서 한국어로 요약해라.
+PROMPT = """다음은 영문 국방/군수/획득 관련 기사 또는 보고서의 본문 일부다. 한국어로 요약해라.
 
-반드시 다음 JSON 스키마로만 응답해라. 다른 텍스트 금지.
+반드시 다음 JSON 스키마로만 응답해라. 다른 텍스트 금지. 모든 값은 한국어로 작성.
 
 {{
-  "한줄요약": "한 문장",
-  "핵심포인트": ["...", "...", "..."],
-  "PBL관련성": "high",
-  "관련성근거": "1-2문장",
-  "주요키워드": ["...", "...", "..."]
+  "한줄요약": "기사 핵심을 한 문장으로",
+  "핵심포인트": ["사실 또는 결정사항 1", "사실 또는 결정사항 2", "사실 또는 결정사항 3"],
+  "주요키워드": ["고유명사 또는 핵심 용어 3-6개"]
 }}
 
 본문:
@@ -47,6 +45,5 @@ def summarize(text: str) -> dict:
         log.warning("Ollama returned non-JSON, preserving raw output")
         return {
             "한줄요약": raw[:500],
-            "PBL관련성": "unknown",
             "_invalid_json": True,
         }

@@ -1,5 +1,6 @@
 import io
 import logging
+import time
 
 from bs4 import BeautifulSoup
 from curl_cffi import requests as cc_requests
@@ -30,6 +31,7 @@ def _extract_html(html: str) -> str:
 
 def fetch_text(url: str) -> str:
     """URL에서 PDF 또는 HTML을 받아 본문 텍스트 반환."""
+    time.sleep(config.HTTP_DELAY)  # 정중함 — 같은 도메인 연속 호출 시 부담 방지
     r = cc_requests.get(url, impersonate="chrome120", timeout=config.HTTP_TIMEOUT)
     r.raise_for_status()
     ctype = r.headers.get("Content-Type", "").lower()

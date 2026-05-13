@@ -13,14 +13,25 @@ KEYWORDS = [
     "성과기반군수지원",
 ]
 
-# 활성화할 소스. False로 두면 해당 소스 skip.
-# GAO는 검색 매칭이 약해 noise 많음 → 기본 비활성 (필요시 본인이 True로)
+# 5개 RSS 피드 — pivot 후 주 수집 채널
+RSS_FEEDS = [
+    {"source": "dod_news",         "url": "https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=1&Site=945&max=10"},
+    {"source": "dod_contracts",    "url": "https://www.defense.gov/DesktopModules/ArticleCS/RSS.ashx?ContentType=400&Site=945&max=10"},
+    {"source": "defense_news",     "url": "https://www.defensenews.com/arc/outboundfeeds/rss/?outputType=xml"},
+    {"source": "air_space_forces", "url": "https://www.airandspaceforces.com/feed/"},
+    {"source": "defense_one",      "url": "https://www.defenseone.com/rss/all/"},
+]
+RSS_PER_FEED_MAX = 20
+MIN_BODY_CHARS = 300  # 본문 이 미만이면 분류기 우회하고 'low' 강제
+
+# 활성화할 소스. RSS pivot 이후 키워드 검색은 모두 비활성.
 SOURCES = {
-    "arxiv": True,
-    "openalex": True,
-    "gao": False,
-    "ddg": True,
-    "seed": True,
+    "arxiv":    False,
+    "openalex": False,
+    "gao":      False,
+    "ddg":      False,
+    "seed":     True,
+    "rss":      True,
 }
 
 # 차단할 URL — discovery 시 skip, 이미 DB에 있어도 화면에서 숨김
@@ -54,7 +65,7 @@ OLLAMA_HOST = "http://localhost:11434"
 OLLAMA_MODEL = "gemma2:2b"
 OLLAMA_TIMEOUT = 180
 
-MAX_PER_RUN = 5
+MAX_PER_RUN = 15
 MAX_TEXT_CHARS = 12000
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
