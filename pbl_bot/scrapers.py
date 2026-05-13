@@ -203,12 +203,28 @@ def seed_urls():
 
 
 def all_sources():
+    registry = {
+        "arxiv": arxiv_search,
+        "openalex": openalex_search,
+        "gao": gao_search,
+        "ddg": ddg_search,
+        "seed": seed_urls,
+    }
+    blocked = set(config.BLOCKED_URLS)
     out = []
-    for fn in (arxiv_search, openalex_search, gao_search, ddg_search, seed_urls):
+    for name, fn in registry.items():
+        if not config.SOURCES.get(name, True):
+            log.info("%s: skipped (disabled in config.SOURCES)", name)
+            continue
         try:
             results = fn()
-            log.info("%s: %d items", fn.__name__, len(results))
+            before = len(results)
+            results = [r for r in results if r["url"] not in blocked]
+            if before != len(results):
+                log.info("%s: %d items (%d blocked)", name, len(results), before - len(results))
+            else:
+                log.info("%s: %d items", name, len(results))
             out.extend(results)
         except Exception as e:
-            log.error("scraper %s failed: %s", fn.__name__, e)
+            log.error("scraper %s failed: %s", name, e)
     return out

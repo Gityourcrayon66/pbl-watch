@@ -13,6 +13,21 @@ KEYWORDS = [
     "성과기반군수지원",
 ]
 
+# 활성화할 소스. False로 두면 해당 소스 skip.
+# GAO는 검색 매칭이 약해 noise 많음 → 기본 비활성 (필요시 본인이 True로)
+SOURCES = {
+    "arxiv": True,
+    "openalex": True,
+    "gao": False,
+    "ddg": True,
+    "seed": True,
+}
+
+# 차단할 URL — discovery 시 skip, 이미 DB에 있어도 화면에서 숨김
+# (Streamlit 카드의 "차단 추가" 링크가 GitHub 편집 페이지로 안내)
+BLOCKED_URLS: list[str] = [
+]
+
 ARXIV_QUERY = '"performance based logistics" OR "performance-based logistics"'
 ARXIV_MAX = 10
 

@@ -40,17 +40,47 @@ jobs:
       - name: Pull model
         run: ollama pull gemma2:2b
 
+      - name: Set date env
+        run: echo "TODAY=$(date -u +%F)" >> $GITHUB_ENV
+
       - name: Run daily collection
         run: python -m pbl_bot.daily_run ${{ github.event.inputs.max || '3' }}
+
+      - name: Generate HTML report
+        run: python -m pbl_bot.report
 
       - name: Commit results
         run: |
           git config user.name "pbl-bot"
           git config user.email "bot@users.noreply.github.com"
-          git add data/pbl.db
+          git add data/pbl.db docs/
           if git diff --staged --quiet; then
             echo "no changes"
           else
-            git commit -m "daily collection $(date -u +%F)"
+            git commit -m "daily collection $TODAY"
             git push
           fi
+
+      - name: Check if today's report exists
+        id: today_check
+        run: |
+          if [ -f "docs/$TODAY.html" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Send daily email
+        if: steps.today_check.outputs.exists == 'true'
+        continue-on-error: true   # secrets 미설정 시 무시
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USER }}
+          password: ${{ secrets.EMAIL_PASS }}
+          subject: PBL Watch — ${{ env.TODAY }}
+          to: ${{ secrets.EMAIL_TO }}
+          from: PBL Watch <${{ secrets.EMAIL_USER }}>
+          html_body: file://docs/${{ env.TODAY }}.html
