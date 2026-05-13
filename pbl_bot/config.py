@@ -24,6 +24,10 @@ OPENALEX_MAX = 25
 GAO_SEARCH_URL = "https://www.gao.gov/reports-testimonies?keyword={kw}&processed=1"
 
 # 본인이 직접 정독할 가치가 있다고 판단한 URL — 직접 추가
+# PDF 또는 HTML 모두 지원. 예:
+#   "https://www.gao.gov/assets/d24...pdf"         (PDF)
+#   "https://www.law.go.kr/법령/방위사업법"          (HTML — 법령 본문)
+#   "https://www.law.go.kr/행정규칙/..."             (HTML — 훈령)
 SEED_URLS: list[str] = [
     "https://www.gao.gov/assets/d24106786.pdf",
 ]

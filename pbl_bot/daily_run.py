@@ -8,7 +8,7 @@ except Exception:
 
 from . import config
 from .annotator_ollama import summarize
-from .processor import fetch_pdf_text
+from .processor import fetch_text
 from .scrapers import all_sources
 from .storage import Storage
 
@@ -39,7 +39,7 @@ def run(max_docs: int = config.MAX_PER_RUN):
     for doc in pending:
         log.info("→ %s", doc["url"])
         try:
-            text = fetch_pdf_text(doc["url"])
+            text = fetch_text(doc["url"])
             if not text.strip():
                 store.mark_failed(doc["id"], "empty text")
                 continue
