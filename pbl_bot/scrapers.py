@@ -160,6 +160,41 @@ def gao_search():
     return out
 
 
+def ddg_search():
+    """DuckDuckGo 일반 웹 검색 — phrase 강제 + 본문 매칭 필터."""
+    try:
+        from duckduckgo_search import DDGS
+    except ImportError:
+        log.warning("duckduckgo_search not installed")
+        return []
+
+    out = []
+    for kw in config.KEYWORDS:
+        query = f'"{kw}"'  # phrase 검색 강제 (특히 한국어 단어 분리 방지)
+        try:
+            time.sleep(config.HTTP_DELAY)
+            with DDGS() as ddgs:
+                results = list(ddgs.text(query, max_results=config.DDG_MAX))
+        except Exception as e:
+            log.warning("DDG search failed (%s): %s", kw, e)
+            continue
+        for r in results:
+            title = r.get("title") or ""
+            href = r.get("href") or ""
+            body = r.get("body") or ""
+            if not href:
+                continue
+            if not _pbl_in_text(title + " " + body):
+                continue
+            out.append({
+                "source": "ddg",
+                "url": href,
+                "title": title,
+                "published": None,
+            })
+    return out
+
+
 def seed_urls():
     return [
         {"source": "seed", "url": u, "title": u.rsplit("/", 1)[-1], "published": None}
@@ -169,7 +204,7 @@ def seed_urls():
 
 def all_sources():
     out = []
-    for fn in (arxiv_search, openalex_search, gao_search, seed_urls):
+    for fn in (arxiv_search, openalex_search, gao_search, ddg_search, seed_urls):
         try:
             results = fn()
             log.info("%s: %d items", fn.__name__, len(results))

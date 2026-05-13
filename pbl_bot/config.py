@@ -23,6 +23,9 @@ OPENALEX_MAX = 25
 
 GAO_SEARCH_URL = "https://www.gao.gov/reports-testimonies?keyword={kw}&processed=1"
 
+# DuckDuckGo 일반 웹 검색 (구글 대체, API key 불필요)
+DDG_MAX = 10
+
 # 본인이 직접 정독할 가치가 있다고 판단한 URL — 직접 추가
 # PDF 또는 HTML 모두 지원. 예:
 #   "https://www.gao.gov/assets/d24...pdf"         (PDF)
