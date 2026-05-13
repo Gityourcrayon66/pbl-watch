@@ -24,12 +24,15 @@ def _http_get(url: str):
 
 def _pbl_in_text(text: str) -> bool:
     """클라이언트 필터: PBL이 진짜로 'performance based logistics'인지 확인."""
-    t = (text or "").lower()
+    raw = text or ""
+    t = raw.lower()
     return (
         "performance based logistics" in t
         or "performance-based logistics" in t
         or "performance based sustainment" in t
         or "performance-based sustainment" in t
+        or "성과기반군수지원" in raw
+        or "성과 기반 군수지원" in raw
     )
 
 
@@ -126,7 +129,7 @@ def gao_search():
                 href = "https://www.gao.gov" + href
             report_pages.add(href.split("?")[0])
 
-        for page_url in list(report_pages)[:5]:
+        for page_url in list(report_pages)[:8]:
             try:
                 rr = _http_get(page_url)
             except Exception as e:
@@ -135,6 +138,10 @@ def gao_search():
             ps = BeautifulSoup(rr.text, "html.parser")
             title_el = ps.find("h1") or ps.find("title")
             title = title_el.get_text(strip=True) if title_el else page_url
+            # 본문 추출하여 PBL phrase 정확 매칭만 통과
+            body_text = ps.get_text(" ", strip=True)
+            if not _pbl_in_text(title + " " + body_text):
+                continue
             pdf_link = None
             for a in ps.select("a[href$='.pdf']"):
                 href = a.get("href", "")

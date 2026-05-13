@@ -10,6 +10,7 @@ KEYWORDS = [
     "Performance Based Logistics",
     "Performance-Based Logistics",
     "PBL sustainment",
+    "성과기반군수지원",
 ]
 
 ARXIV_QUERY = '"performance based logistics" OR "performance-based logistics"'
